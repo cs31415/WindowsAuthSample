@@ -1,0 +1,93 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="WindowsAuthSite.master.cs" Inherits="WindowsAuthSample.WindowsAuthSite" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <title></title>
+    <link rel="stylesheet" type="text/css" media="screen" href="styles/main.css" />
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+    
+    <script type="text/javascript">
+        /**
+         * If browser back button was used, flush cache
+         * This ensures that user will always see an accurate, up-to-date view based on their state
+         * https://stackoverflow.com/questions/8788802/prevent-safari-loading-from-cache-when-back-button-is-clicked
+         */
+        (function () {
+	        window.onpageshow = function(event) {
+		        if (event.persisted) {
+			        window.location.reload();
+		        }
+	        };
+        })();
+        function startTimer(duration, display) {
+            var timer = duration;
+            setInterval(function () {
+                display.textContent = formatTime(timer);
+                if (--timer < 0) {
+                    timer = 0;
+                }
+
+            }, 1000);
+        }
+        function formatTime(remainingTimeSeconds) {
+            var minutes, seconds;
+            minutes = parseInt(remainingTimeSeconds / 60, 10);
+            seconds = parseInt(remainingTimeSeconds % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            
+            return (minutes + ":" + seconds);
+        }
+        window.onload = function () {
+            var display = document.querySelector('#time');
+            display.textContent = formatTime(<%= SecondsRemaining %>);
+            startTimer(<%= SecondsRemaining %>, display);
+        };
+    </script>
+</head>
+<body>
+    <div class="logout_button_holder">
+        <button type="button" class="logout_button" onclick="(function(){window.location.href = '/logout.aspx';})()">Logout</button>
+    </div>
+    <form id="form1" runat="server">
+        <div id="main">
+            <asp:ContentPlaceHolder ID="AuthSiteContentPlaceHolder" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+        <div>
+
+        <div>Time remaining: <span id="time"></span> minutes</div>
+        <div>Session Id: <b><%= Session.SessionID %></b></div>
+        <div>Variables:
+            <p>
+            <%= Session["Variables"] as string%>
+            </p>    
+        </div>
+        <div>Cookies:
+            <p>
+            <%foreach (var key in Request.Cookies.AllKeys) {%>
+              <span><% =$"{key} = {Request.Cookies[key]?.Value}" %></span>      
+            <% 
+              }%>
+            </p>    
+        </div>
+        <div>Auth sequence:
+            <p>
+            <%= Session["Sequence"] as string%>
+            </p>    
+        </div>
+    </form>
+    <div id="logged_in_user_holder" class="logged_in_user_holder">
+        <label class="logged_in_user">
+        Logged in as <b><%= Page.User.Identity.Name %></b> at <%= LogonTime %>
+        </label>
+    </div>
+
+    
+
+</body>
+</html>
